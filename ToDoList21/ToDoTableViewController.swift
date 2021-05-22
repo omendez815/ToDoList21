@@ -11,16 +11,22 @@ import UIKit
 class ToDoTableViewController: UITableViewController {
 
     //create an empty array that will hold ToDo objects
-    var toDosArr : [ToDo] = []
+    var toDosArr : [ToDoCoreData] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         //set ToDOs array to the array returned by createToDos()
-        toDosArr = createToDos()
+        //toDosArr = createToDos()
     }
     
-    func createToDos()->[ToDo]{
+    //function will ensure ToDo List always reflects changes in Core Data???
+    override func viewWillAppear(_ animated: Bool) {
+      getToDos()
+    }
+    
+    /* Old function to manually populate the ToDo array
+     func createToDos()->[ToDo]{
         //create a ToDo object named swift
         let swift = ToDo()
         //set name property of swift object
@@ -33,6 +39,18 @@ class ToDoTableViewController: UITableViewController {
         
         //return an array of ToDo objects
         return [swift, dog]
+    }*/
+    
+    func getToDos(){
+        //access CoreData
+        if let context = (UIApplication.shared.delegate as? AppDelegate)?.persistentContainer.viewContext {
+            
+            if let coreDataToDos = try? context.fetch(ToDoCoreData.fetchRequest()) as? [ToDoCoreData] {
+                toDosArr = coreDataToDos
+                tableView.reloadData()
+            }
+        
+        }
     }
 
     // MARK: - Table view data source
@@ -52,12 +70,13 @@ class ToDoTableViewController: UITableViewController {
         // Configure the cell at current row
         let toDoItem = toDosArr[indexPath.row]
         
-        if toDoItem.important{
-            cell.textLabel?.text = " ‼️ " + toDoItem.name
-        }else{
-            cell.textLabel?.text = toDoItem.name
+        if let name = toDoItem.name{
+            if toDoItem.important{
+                cell.textLabel?.text = " ‼️ " + name
+            }else{
+                cell.textLabel?.text = name
+            }
         }
-        
         return cell
     }
     
@@ -84,7 +103,7 @@ class ToDoTableViewController: UITableViewController {
         
         //if we're going to complete to do VC...
         if let completeVC = segue.destination as? CompleteToDoViewController{
-            if let toDo = sender as? ToDo{
+            if let toDo = sender as? ToDoCoreData{
                 completeVC.selectedToDo = toDo
                 completeVC.previousVC = self
             }
@@ -93,8 +112,4 @@ class ToDoTableViewController: UITableViewController {
         
         
     }
-    
-    
-    
-    
 }
