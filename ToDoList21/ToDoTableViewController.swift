@@ -41,8 +41,8 @@ class ToDoTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         //how many rows will we have? as many toDo objects  as we have
-        //return toDosArr.count
-        return 2;
+        return toDosArr.count
+        
     }
 
     //WHAT SHOULD DISPLAY IN EACH ROW???
@@ -63,15 +63,38 @@ class ToDoTableViewController: UITableViewController {
     
 
    
-   
-    /*
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
+        
+        //select a toDoObject from the list
+        let toDoObj = toDosArr[indexPath.row]
+        
+        //move to CompleteViewController with selected toDO object
+        performSegue(withIdentifier: "moveToComplete", sender: toDoObj)
+        
+    }
+    
     // MARK: - Navigation
      //KEEP
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destination.
+        if let addVC = segue.destination as? AddToDoViewController{
+            addVC.previousVC = self
+        }
+        
+        //if we're going to complete to do VC...
+        if let completeVC = segue.destination as? CompleteToDoViewController{
+            if let toDo = sender as? ToDo{
+                completeVC.selectedToDo = toDo
+                completeVC.previousVC = self
+            }
+        }
         // Pass the selected object to the new view controller.
+        
+        
     }
-    */
-
+    
+    
+    
+    
 }
